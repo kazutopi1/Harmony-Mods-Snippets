@@ -10,7 +10,7 @@ namespace Atttttackk
 {
     public class ThisWillWorkIPromise : Mod
     {
-        private const int Threshhold = 50;
+        private const int Threshhold = 50; // takeDamage() is called multiple times in a single hit thats why its set to 50
 
         private static int hitCount = 0;
 
@@ -29,7 +29,7 @@ namespace Atttttackk
                 id: "df.retaliate",
                 displayName: "Retaliate",
                 iconTexture: Game1.content.Load<Texture2D>("TileSheets/BuffsIcons"),
-                iconSheetIndex: 20,
+                iconSheetIndex: 11,
                 duration: 1_000,
                 effects: new BuffEffects()
                 {
