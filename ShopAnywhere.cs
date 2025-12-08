@@ -31,10 +31,14 @@ namespace BlahBlah
                         {
                             new Response("openCarpenter", "Robin's Shop"),
                             new Response("openSeedShop", "Pierre's General Store"),
+                            new Response("openWeaponShop", "Adventurer's Guild Shop"),
+                            new Response("nextPage", "Next Page"),
                             new Response("doNothing", "Close")
                         };
 
-                        StardewValley.GameLocation.afterQuestionBehavior optionLogic = (Farmer who, string whichAnswer) =>
+                        StardewValley.GameLocation.afterQuestionBehavior optionLogic = null;
+
+                        optionLogic = (Farmer who, string whichAnswer) =>
                         {
                             if (whichAnswer == "openCarpenter")
                             {
@@ -48,6 +52,63 @@ namespace BlahBlah
                                 Utility.TryOpenShopMenu(
                                     shopId: "SeedShop",
                                     ownerName: null
+                                );
+                            }
+                            else if (whichAnswer == "openWeaponShop")
+                            {
+                                Utility.TryOpenShopMenu(
+                                    shopId: "AdventureShop",
+                                    ownerName: null
+                                );
+                            }
+                            else if (whichAnswer == "nextPage")
+                            {
+                                Response[] page2 = new Response[]
+                                {
+                                    new Response("openBlacksmith", "Blacksmith"),
+                                    new Response("openFishShop", "Willy's Shop"),
+                                    new Response("openSaloon", "Saloon"),
+                                    new Response("prevPage", "Previous Page"),
+                                    new Response("doNothing2", "Close")
+                                };
+                                StardewValley.GameLocation.afterQuestionBehavior nextPage = (Farmer who, string nextPageAnswers) =>
+                                {
+                                    if (nextPageAnswers == "openBlacksmith")
+                                    {
+                                        Utility.TryOpenShopMenu(
+                                            shopId: "Blacksmith",
+                                            ownerName: null
+                                        );
+                                    }
+                                    else if (nextPageAnswers == "openFishShop")
+                                    {
+                                        Utility.TryOpenShopMenu(
+                                            shopId: "FishShop",
+                                            ownerName: null
+                                        );
+                                    }
+                                    else if (nextPageAnswers == "openSaloon")
+                                    {
+                                        Utility.TryOpenShopMenu(
+                                            shopId: "Saloon",
+                                            ownerName: null
+                                        );
+                                    }
+                                    else if (nextPageAnswers == "prevPage")
+                                    {
+                                        Game1.currentLocation.createQuestionDialogue(
+                                            question: "Open which shop?",
+                                            answerChoices: shops,
+                                            afterDialogueBehavior: optionLogic,
+                                            speaker: null
+                                        );
+                                    }
+                                };
+                                Game1.currentLocation.createQuestionDialogue(
+                                    question: "Open which shop?",
+                                    answerChoices: page2,
+                                    afterDialogueBehavior: nextPage,
+                                    speaker: null
                                 );
                             }
                         };
