@@ -17,6 +17,7 @@ namespace BlahBlah
         private static bool wasBTapped = false;
 
         private static string lastLocationName;
+
         private static Vector2 lastTilePos;
 
         public override void Entry(IModHelper helper)
@@ -30,6 +31,10 @@ namespace BlahBlah
             harmony.Patch(
                 original: AccessTools.Method(typeof(CarpenterMenu), nameof(CarpenterMenu.returnToCarpentryMenu)),
                 postfix: new HarmonyMethod(typeof(Shop), nameof(Shop.Postfix2))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(CarpenterMenu), nameof(CarpenterMenu.returnToCarpentryMenuAfterSuccessfulBuild)),
+                postfix: new HarmonyMethod(typeof(Shop), nameof(Shop.Postfix3))
             );
         }
         private static void Postfix(ref bool __result)
@@ -102,6 +107,28 @@ namespace BlahBlah
                     Game1.player.FacingDirection,
                     doFade: false
                 );
+                Game1.player.viewingLocation.Value = null;
+                Game1.displayHUD = true;
+                Game1.currentLocation.resetForPlayerEntry();
+                Game1.player.forceCanMove();
+                Game1.exitActiveMenu();
+
+            }, 50);
+        }
+        private static void Postfix3()
+        {
+            DelayedAction.functionAfterDelay(() =>
+            {
+                Game1.warpFarmer(
+                    lastLocationName,
+                    (int)lastTilePos.X,
+                    (int)lastTilePos.Y,
+                    Game1.player.FacingDirection,
+                    doFade: false
+                );
+                Game1.player.viewingLocation.Value = null;
+                Game1.displayHUD = true;
+                Game1.currentLocation.resetForPlayerEntry();
                 Game1.player.forceCanMove();
                 Game1.exitActiveMenu();
 
