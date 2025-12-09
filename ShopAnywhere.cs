@@ -64,7 +64,10 @@ namespace BlahBlah
                             }
                             else if (whichAnswer == "nextPage")
                             {
-                                nextPage();
+                                DelayedAction.functionAfterDelay(() =>
+                                {
+                                    nextPage();
+                                }, 34);
                             }
                         };
 
@@ -114,12 +117,15 @@ namespace BlahBlah
                 }
                 else if (nextPageAnswers == "prevPage")
                 {
-                    Game1.currentLocation.createQuestionDialogue(
-                        question: "Open which shop?",
-                        answerChoices: shops,
-                        afterDialogueBehavior: optionLogic,
-                        speaker: null
-                    );
+                    DelayedAction.functionAfterDelay(() =>
+                    {
+                        Game1.currentLocation.createQuestionDialogue(
+                            question: "Open which shop?",
+                            answerChoices: shops,
+                            afterDialogueBehavior: optionLogic,
+                            speaker: null
+                        );
+                    }, 34);
                 }
             };
             Game1.currentLocation.createQuestionDialogue(
