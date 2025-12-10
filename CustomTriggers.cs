@@ -9,6 +9,10 @@ namespace KT_Triggers
 {
     public class Tiger : Mod
     {
+        private const double playerIFrames = 1200.0;
+
+        private static double lastDamaged = -1.0;
+
         private static bool wasATapped = false;
 
         private static bool wasBTapped = false;
@@ -21,6 +25,8 @@ namespace KT_Triggers
 
             TriggerActionManager.RegisterTrigger("KT_UpdateTicked");
 
+            TriggerActionManager.RegisterTrigger("KT_DamageTaken");
+
             var harmony = new Harmony(this.ModManifest.UniqueID);
 
             helper.Events.GameLoop.UpdateTicked += KT_UpdateTicked;
@@ -32,6 +38,10 @@ namespace KT_Triggers
             harmony.Patch(
                 original: AccessTools.PropertyGetter(typeof(VirtualJoypad), nameof(VirtualJoypad.ButtonBPressed)),
                 postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.ButtonB))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.takeDamage)),
+                postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.TookDamage))
             );
         }
         private static void ButtonA(ref bool __result)
@@ -58,6 +68,16 @@ namespace KT_Triggers
             if (Context.IsPlayerFree || Context.CanPlayerMove)
             {
                 TriggerActionManager.Raise("KT_UpdateTicked");
+            }
+        }
+        private static void TookDamage()
+        {
+            double timeNow = Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
+
+            if (timeNow - lastDamaged >= playerIFrames)
+            {
+                TriggerActionManager.Raise("KT_DamageTaken");
+                lastDamaged = timeNow;
             }
         }
     }
