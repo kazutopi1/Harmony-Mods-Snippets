@@ -1,4 +1,4 @@
-qusing StardewValley;
+using StardewValley;
 using StardewValley.Mobile;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
