@@ -10,18 +10,18 @@ namespace KT_Triggers
 {
     public class Tiger : Mod
     {
-        private static double playerIFrames = Farmer.millisecondsInvincibleAfterDamage;
-        private static double lastDamaged = -1.0;
         private static bool wasATapped = false;
         private static bool wasBTapped = false;
+        private static int swingCount = 0;
+        private const int swingThreshold = 3;
 
         public override void Entry(IModHelper helper)
         {
             TriggerActionManager.RegisterTrigger("KT_ButtonAPressed");
             TriggerActionManager.RegisterTrigger("KT_ButtonBPressed");
             TriggerActionManager.RegisterTrigger("KT_UpdateTicked");
-            TriggerActionManager.RegisterTrigger("KT_DamageTaken");
             TriggerActionManager.RegisterTrigger("KT_DoSwing");
+            TriggerActionManager.RegisterTrigger("KT_On3rdSwing");
             TriggerActionManager.RegisterTrigger("KT_UseTool");
 
             var harmony = new Harmony(this.ModManifest.UniqueID);
@@ -37,12 +37,12 @@ namespace KT_Triggers
                 postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.ButtonB))
             );
             harmony.Patch(
-                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.takeDamage)),
-                postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.TookDamage))
+                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.doSwipe)),
+                postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.DoSwipe))
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.doSwipe)),
-                postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.DoSwipe))
+                postfix: new HarmonyMethod(typeof(Tiger), nameof(Tiger.On3rdSwing))
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.useTool)),
@@ -75,30 +75,24 @@ namespace KT_Triggers
                 TriggerActionManager.Raise("KT_UpdateTicked");
             }
         }
-        private static void TookDamage(int damage)
-        {
-            if (damage < 0)
-            {
-                return;
-            }
-            if (Game1.player.isWearingRing("861"))
-            {
-                playerIFrames = 1600.0;
-            }
-            double timeNow = Game1.currentGameTime.TotalGameTime.TotalMilliseconds;
-            if (timeNow - lastDamaged >= playerIFrames)
-            {
-                TriggerActionManager.Raise("KT_DamageTaken");
-                lastDamaged = timeNow;
-            }
-        }
         private static void DoSwipe()
         {
             TriggerActionManager.Raise("KT_DoSwing");
+        }
+        private static void On3rdSwing()
+        {
+            swingCount += 1;
+            if (swingCount >= swingThreshold)
+            {
+                TriggerActionManager.Raise("KT_On3rdSwing");
+                swingCount = 0;
+            }
         }
         private static void UseTool(Farmer who)
         {
             TriggerActionManager.Raise("KT_UseTool");
         }
+    }
+}        }
     }
 }
